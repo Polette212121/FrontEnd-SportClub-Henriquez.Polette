@@ -3,236 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SportClub - Registro</title>
+    <title>Registro - SportClub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        .register-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px 0;
-        }
-        .form-container {
-            max-width: 500px;
-            width: 100%;
-            margin: 20px;
-        }
-        .form-title {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .form-title h2 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        .form-title p {
-            color: #666;
-            margin: 0;
-        }
-        .form-footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-        }
-        .form-footer a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-        .btn-register {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn-register:hover {
-            background-color: #218838;
-        }
-        .btn-register:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-        .back-link {
-            margin-top: 15px;
-            text-align: center;
-        }
-        .back-link a {
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .back-link a:hover {
-            text-decoration: underline;
-        }
-        .password-requirements {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/forms.css">
 </head>
-<body>
-    <div class="register-container">
-        <div class="form-container">
-            <div class="form-title">
-                <h2>SportClub</h2>
-                <p>Crear Nueva Cuenta</p>
+<body class="form-page">
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h1>SportClub</h1>
+                <p>Únete a nuestra comunidad</p>
             </div>
 
-            <div id="messageContainer"></div>
-
-            <form id="registerForm">
+            <form class="registro-form" id="registroForm">
                 <div class="form-group">
-                    <label for="fullName">Nombre Completo</label>
-                    <input type="text" id="fullName" name="fullName" required>
-                    <div class="form-error"></div>
+                    <label for="nombre">Nombre Completo <span class="required">*</span></label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Tu nombre completo" required>
+                    <span class="error-message" id="nombreError"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
-                    <div class="form-error"></div>
+                    <label for="email">Correo Electrónico <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="tu@correo.com" required>
+                    <span class="error-message" id="emailError"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="birthDate">Fecha de Nacimiento</label>
-                    <input type="date" id="birthDate" name="birthDate">
-                    <div class="form-error"></div>
+                    <label for="password">Contraseña <span class="required">*</span></label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                    <small class="form-text">Mínimo 8 caracteres</small>
+                    <span class="error-message" id="passwordError"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" required>
-                    <div class="password-requirements">Mínimo 8 caracteres</div>
-                    <div class="form-error"></div>
+                    <label for="confirmPassword">Confirmar Contraseña <span class="required">*</span></label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="••••••••" required>
+                    <span class="error-message" id="confirmPasswordError"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="confirmPassword">Confirmar Contraseña</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
-                    <div class="form-error"></div>
+                    <label for="dateOfBirth">Fecha de Nacimiento</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control">
                 </div>
 
-                <button type="submit" class="btn-register">Registrarse</button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block w-100">Registrarse</button>
+                </div>
+
+                <div class="success-message" id="successMessage"></div>
             </form>
 
-            <div class="form-footer">
-                <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+            <div class="form-links">
+                <a href="login.html" class="link">← Iniciar Sesión</a>
             </div>
 
-            <div class="back-link">
-                <a href="../index.html">← Volver a inicio</a>
+            <div class="form-footer">
+                <a href="../index.html" class="link">Ir al inicio</a>
             </div>
         </div>
     </div>
 
-    <script src="../js/auth.js"></script>
-    <script src="../js/api.js"></script>
-    <script src="../js/utils.js"></script>
-    <script>
-        const form = document.getElementById('registerForm');
-        const messageContainer = document.getElementById('messageContainer');
-
-        // Redirect if already logged in
-        if (isLoggedIn()) {
-            window.location.href = 'dashboard.html';
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const birthDate = document.getElementById('birthDate').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Validate
-            let isValid = true;
-            const fields = {
-                fullName: document.getElementById('fullName'),
-                email: document.getElementById('email'),
-                password: document.getElementById('password'),
-                confirmPassword: document.getElementById('confirmPassword')
-            };
-
-            Object.values(fields).forEach(field => clearFieldError(field));
-
-            if (!fullName) {
-                showFieldError(fields.fullName, 'El nombre completo es obligatorio');
-                isValid = false;
-            }
-
-            if (!email) {
-                showFieldError(fields.email, 'El email es obligatorio');
-                isValid = false;
-            } else if (!validateEmail(email)) {
-                showFieldError(fields.email, 'Email inválido');
-                isValid = false;
-            }
-
-            if (!password) {
-                showFieldError(fields.password, 'La contraseña es obligatoria');
-                isValid = false;
-            } else if (!validatePasswordStrength(password)) {
-                // Note: validatePasswordStrength returns null if valid
-            } else {
-                showFieldError(fields.password, 'Contraseña mínima 8 caracteres');
-                isValid = false;
-            }
-
-            if (password.length < 8) {
-                showFieldError(fields.password, 'Contraseña mínima 8 caracteres');
-                isValid = false;
-            }
-
-            if (!confirmPassword) {
-                showFieldError(fields.confirmPassword, 'Debe confirmar la contraseña');
-                isValid = false;
-            } else if (password !== confirmPassword) {
-                showFieldError(fields.confirmPassword, 'Las contraseñas no coinciden');
-                isValid = false;
-            }
-
-            if (!isValid) return;
-
-            // Submit
-            const button = form.querySelector('button[type="submit"]');
-            showLoading(button);
-
-            try {
-                const result = await authAPI.register({
-                    full_name: fullName,
-                    email,
-                    birthDate: birthDate || null,
-                    password,
-                    role: 'user'
-                });
-
-                if (result.ok) {
-                    showMessage(messageContainer, 'Registro exitoso. Redirigiendo...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                } else {
-                    showMessage(messageContainer, result.data.message || 'Error al registrarse', 'error');
-                    hideLoading(button, 'Registrarse');
-                }
-            } catch (error) {
-                showMessage(messageContainer, 'Error de conexión', 'error');
-                hideLoading(button, 'Registrarse');
-            }
-        });
-    </script>
+    <script src="../js/forms.js"></script>
 </body>
 </html>

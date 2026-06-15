@@ -4,139 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - SportClub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/dashboard.css">
 </head>
-<body class="dashboard dashboard-admin">
-    
+<body class="dashboard-page">
     <!-- HEADER -->
-    <header class="dashboard-header admin-header">
-        <div class="header-container">
-            <div class="logo">
-                <h2>🏋️ SportClub</h2>
-            </div>
-            <div class="header-actions">
-                <button class="header-btn" id="miPerfil">👤 Mi Perfil</button>
-                <a href="../index.html" class="header-btn btn-logout">🚪 Cerrar Sesión</a>
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h2>🏋️ SportClub - Administrador</h2>
+                </div>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><span id="userDisplay"></span></li>
+                        <li><a href="#" onclick="logout()" class="btn-logout">Cerrar Sesión</a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="dashboard-container">
-        
-        <!-- NAVEGACIÓN LATERAL -->
-        <nav class="dashboard-nav admin-nav">
-            <ul>
-                <li><a href="#usuarios" class="nav-link active">👥 Usuarios</a></li>
-                <li><a href="#reportes" class="nav-link">📊 Reportes</a></li>
-                <li><a href="#configuracion" class="nav-link">⚙️ Configuración</a></li>
-                <li><a href="#clases" class="nav-link">📚 Clases</a></li>
-            </ul>
-        </nav>
-
-        <!-- CONTENIDO PRINCIPAL -->
-        <main class="dashboard-content">
-            
-            <!-- SECCIÓN 1: TARJETAS ESTADÍSTICAS -->
-            <section class="dashboard-section">
-                <h2>📊 Estadísticas del Sistema</h2>
-                <div class="stats-grid admin-stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalUsuarios">0</div>
-                        <div class="stat-label">Total Usuarios</div>
-                        <div class="stat-icon">👥</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalCoaches">0</div>
-                        <div class="stat-label">Total Coaches</div>
-                        <div class="stat-icon">🏋️</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalClases">0</div>
-                        <div class="stat-label">Total Clases</div>
-                        <div class="stat-icon">📚</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECCIÓN 2: TABLA DE USUARIOS (mínimo 5) -->
-            <section id="usuarios" class="dashboard-section">
-                <h2>👥 Gestión de Usuarios</h2>
-                <p class="section-subtitle">Lista de todos los usuarios del sistema</p>
-                <div class="table-container">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>RUT</th>
-                                <th>Nombre Completo</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Fecha de Registro</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usuariosTabla">
-                            <!-- Se llena con JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- SECCIÓN 3: PANEL DE REPORTES -->
-            <section id="reportes" class="dashboard-section">
-                <h2>📊 Reportes</h2>
-                <p class="section-subtitle">Información visual del sistema</p>
-                <div class="reportes-grid">
-                    <div class="reporte-card">
-                        <h3>🔥 Clases Más Solicitadas</h3>
-                        <ul id="clasesPopulares">
-                            <!-- Se llena con JavaScript -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="dashboard-content">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- SIDEBAR -->
+                <aside class="sidebar">
+                    <div class="menu-section">
+                        <h3>Panel de Control</h3>
+                        <ul class="dashboard-menu">
+                            <li><a href="#estadisticas" class="menu-link active">📊 Estadísticas</a></li>
+                            <li><a href="#usuarios" class="menu-link">👥 Gestión de Usuarios</a></li>
+                            <li><a href="#planes" class="menu-link">💳 Planes y Precios</a></li>
+                            <li><a href="#reportes" class="menu-link">📈 Reportes</a></li>
                         </ul>
                     </div>
-                    <div class="reporte-card">
-                        <h3>✅ Usuarios Activos</h3>
-                        <div class="reporte-stat">
-                            <div class="reporte-number" id="usuariosActivos">0</div>
-                            <div class="reporte-label">usuarios conectados hoy</div>
+                </aside>
+
+                <!-- CONTENIDO -->
+                <section class="main-content">
+                    <!-- ESTADÍSTICAS -->
+                    <div id="estadisticas" class="dashboard-section active">
+                        <h2>Estadísticas del Sistema</h2>
+                        <p>Resumen general de actividad en SportClub</p>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">👥</div>
+                                <div class="stat-content">
+                                    <h3>Usuarios Registrados</h3>
+                                    <p class="stat-number" id="totalUsers">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🏋️</div>
+                                <div class="stat-content">
+                                    <h3>Coaches Activos</h3>
+                                    <p class="stat-number">2</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-content">
+                                    <h3>Ingresos Mensuales</h3>
+                                    <p class="stat-number">$120.000</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="reporte-card">
-                        <h3>📅 Reservas del Día</h3>
-                        <div class="reporte-stat">
-                            <div class="reporte-number" id="reservasHoy">0</div>
-                            <div class="reporte-label">reservas registradas</div>
+
+                    <!-- GESTIÓN DE USUARIOS -->
+                    <div id="usuarios" class="dashboard-section">
+                        <h2>Gestión de Usuarios</h2>
+                        <p>Administra los usuarios del sistema</p>
+                        
+                        <button class="btn btn-primary" id="newUserBtn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">➕ Nuevo Usuario</button>
+                        
+                        <!-- FORMULARIO NUEVO USUARIO -->
+                        <div id="userForm" style="display: none; background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <h3 style="margin-bottom: 20px;">Crear Nuevo Usuario</h3>
+                            <form id="createUserForm">
+                                <div class="form-group">
+                                    <label>Nombre Completo *</label>
+                                    <input type="text" class="form-control" required>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email *</label>
+                                    <input type="email" class="form-control" required>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Rol *</label>
+                                    <select class="form-control" required>
+                                        <option value="">Seleccionar rol</option>
+                                        <option value="user">Usuario</option>
+                                        <option value="coach">Coach</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Contraseña *</label>
+                                    <input type="password" class="form-control" required>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Confirmar Contraseña *</label>
+                                    <input type="password" class="form-control" required>
+                                    <span class="error-message"></span>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                            </form>
+                        </div>
+
+                        <!-- TABLA DE USUARIOS -->
+                        <div class="admin-table" style="margin-top: 30px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Fecha de Registro</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; color: #999;">Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
-            </section>
 
-            <!-- SECCIÓN 4: CONFIGURACIÓN RÁPIDA -->
-            <section id="configuracion" class="dashboard-section">
-                <h2>⚙️ Configuración Rápida</h2>
-                <p class="section-subtitle">Acciones administrativas</p>
-                <div class="config-buttons">
-                    <button class="btn btn-primary" id="crearUsuario">➕ Crear Usuario</button>
-                    <button class="btn btn-secondary" id="editarSistema">✏️ Editar Sistema</button>
-                    <button class="btn btn-secondary" id="configuracion">⚙️ Configuración</button>
-                </div>
-            </section>
+                    <!-- PLANES Y PRECIOS -->
+                    <div id="planes" class="dashboard-section">
+                        <h2>Planes y Precios</h2>
+                        <p>Gestiona los planes de suscripción</p>
+                        <div class="plans-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Plan</th>
+                                        <th>Precio</th>
+                                        <th>Características</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Plan Básico</td>
+                                        <td>$19.990</td>
+                                        <td>5 clases/mes</td>
+                                        <td><button class="btn btn-secondary btn-small">✏️ Editar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Plan Premium</td>
+                                        <td>$29.990</td>
+                                        <td>Ilimitado + Coach</td>
+                                        <td><button class="btn btn-secondary btn-small">✏️ Editar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Plan Empresa</td>
+                                        <td>$39.990</td>
+                                        <td>Todo incluido</td>
+                                        <td><button class="btn btn-secondary btn-small">✏️ Editar</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-            <!-- SECCIÓN 5: GESTIÓN DE CLASES -->
-            <section id="clases" class="dashboard-section">
-                <h2>📚 Gestión de Clases</h2>
-                <p class="section-subtitle">Clases disponibles en el sistema</p>
-                <div class="clases-admin-grid" id="clasesAdminGrid">
-                    <!-- Se llena con JavaScript -->
-                </div>
-            </section>
+                    <!-- REPORTES -->
+                    <div id="reportes" class="dashboard-section">
+                        <h2>Reportes</h2>
+                        <p>Descarga reportes del sistema</p>
+                        <div class="reports-grid">
+                            <div class="report-card">
+                                <h3>📊 Reporte de Asistencia</h3>
+                                <p>Reporte mensual de asistencia a clases</p>
+                                <button class="btn btn-secondary">Descargar PDF</button>
+                            </div>
+                            <div class="report-card">
+                                <h3>💰 Reporte Financiero</h3>
+                                <p>Resumen de ingresos y gastos</p>
+                                <button class="btn btn-secondary">Descargar PDF</button>
+                            </div>
+                            <div class="report-card">
+                                <h3>👥 Reporte de Usuarios</h3>
+                                <p>Análisis de usuarios activos e inactivos</p>
+                                <button class="btn btn-secondary">Descargar PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
 
-        </main>
-    </div>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 SportClub - Panel Administrativo. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-    <!-- SCRIPTS -->
-    <script src="../js/auth.js"></script>
+    <script src="../js/forms.js"></script>
     <script src="../js/dashboard-admin.js"></script>
-
 </body>
 </html>

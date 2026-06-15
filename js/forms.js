@@ -1,159 +1,295 @@
 /* ============================================
-   MANEJO DE FORMULARIOS
+   MANEJO DE FORMULARIOS CON API Y VALIDACIONES REALES
    ============================================ */
 
-// Login Form
+const API_URL = 'http://localhost:3000/api';
+
+// ============================================
+// LOGIN FORM - CON CONSUMO DE API
+// ============================================
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-    loginForm.addEventListener('submit', async function(e) {  // -- Se agrega async ára poder usar await y esperar la respuesta del servidor 
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const emailError = document.getElementById('emailError');
         const passwordError = document.getElementById('passwordError');
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
         let isValid = true;
         
-        // Clear previous errors
+        // Limpiar errores previos
         emailError.textContent = '';
         passwordError.textContent = '';
         
-        // Validate email
+        // VALIDAR EMAIL (OBLIGATORIO)
         if (!email) {
-            emailError.textContent = 'El correo es requerido';
+            emailError.textContent = 'El correo es obligatorio *';
             isValid = false;
         } else if (!isValidEmail(email)) {
-            emailError.textContent = 'Correo inválido';
+            emailError.textContent = 'Correo inválido (ej: usuario@correo.com)';
             isValid = false;
         }
         
-        // Validate password
+        // VALIDAR CONTRASEÑA (OBLIGATORIO)
         if (!password) {
-            passwordError.textContent = 'La contraseña es requerida';
+            passwordError.textContent = 'La contraseña es obligatoria *';
             isValid = false;
-        } else if (password.length < 6) {
-            passwordError.textContent = 'La contraseña debe tener al menos 6 caracteres';
+        } else if (password.length < 8) {
+            passwordError.textContent = 'La contraseña debe tener al menos 8 caracteres';
             isValid = false;
         }
         
-        if (isValid) {
-            // Redirect to dashboard
-            window.location.href = 'dashboard-usuario.html';
+        if (!isValid) {
+            return;
+        }
+        
+        // Deshabilitar botón durante envío
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Ingresando...';
+        
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.token) {
+                // Guardar token y datos de sesión
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirigir según rol
+                const role = data.user.role;
+                if (role === 'admin') {
+                    window.location.href = 'dashboard-admin.html';
+                } else if (role === 'coach') {
+                    window.location.href = 'dashboard-coach.html';
+                } else {
+                    window.location.href = 'dashboard-usuario.html';
+                }
+            } else {
+                passwordError.textContent = data.message || 'Correo o contraseña incorrectos';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            passwordError.textContent = 'Error de conexión. Intenta de nuevo.';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Ingresar';
         }
     });
 }
 
-// Registro Form
+// ============================================
+// REGISTRO FORM - CON CONSUMO DE API
+// ============================================
 const registroForm = document.getElementById('registroForm');
 if (registroForm) {
-    registroForm.addEventListener('submit', function(e) {
+    registroForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const nombre = document.getElementById('nombre').value;
-        const email = document.getElementById('email').value;
+        const nombre = document.getElementById('nombre').value.trim();
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-        const successMessage = document.getElementById('successMessage');
+        const dateOfBirth = document.getElementById('dateOfBirth')?.value || null;
+        
         const nombreError = document.getElementById('nombreError');
         const emailError = document.getElementById('emailError');
         const passwordError = document.getElementById('passwordError');
         const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const successMessage = document.getElementById('successMessage');
+        const submitBtn = registroForm.querySelector('button[type="submit"]');
         
         let isValid = true;
         
-        // Clear previous messages
+        // Limpiar mensajes previos
         nombreError.textContent = '';
         emailError.textContent = '';
         passwordError.textContent = '';
         confirmPasswordError.textContent = '';
         successMessage.classList.remove('show');
         
-        // Validate nombre
+        // VALIDAR NOMBRE (OBLIGATORIO)
         if (!nombre) {
-            nombreError.textContent = 'El nombre es requerido';
+            nombreError.textContent = 'El nombre es obligatorio *';
             isValid = false;
         } else if (nombre.length < 3) {
             nombreError.textContent = 'El nombre debe tener al menos 3 caracteres';
             isValid = false;
         }
         
-        // Validate email
+        // VALIDAR EMAIL (OBLIGATORIO)
         if (!email) {
-            emailError.textContent = 'El correo es requerido';
+            emailError.textContent = 'El correo es obligatorio *';
             isValid = false;
         } else if (!isValidEmail(email)) {
-            emailError.textContent = 'Correo inválido';
+            emailError.textContent = 'Correo inválido (ej: usuario@correo.com)';
             isValid = false;
         }
         
-        // Validate password
+        // VALIDAR CONTRASEÑA (OBLIGATORIO - Mínimo 8 caracteres)
         if (!password) {
-            passwordError.textContent = 'La contraseña es requerida';
+            passwordError.textContent = 'La contraseña es obligatoria *';
             isValid = false;
-        } else if (password.length < 6) {
-            passwordError.textContent = 'La contraseña debe tener al menos 6 caracteres';
+        } else if (password.length < 8) {
+            passwordError.textContent = 'La contraseña debe tener mínimo 8 caracteres';
             isValid = false;
         }
         
-        // Validate confirm password
+        // VALIDAR CONFIRMACIÓN (OBLIGATORIO)
         if (!confirmPassword) {
-            confirmPasswordError.textContent = 'Debe confirmar la contraseña';
+            confirmPasswordError.textContent = 'Debe confirmar la contraseña *';
             isValid = false;
         } else if (password !== confirmPassword) {
             confirmPasswordError.textContent = 'Las contraseñas no coinciden';
             isValid = false;
         }
         
-        if (isValid) {
-            // Show success message
-            successMessage.textContent = '✓ Usuario registrado correctamente. Redirigiendo...';
-            successMessage.classList.add('show');
+        if (!isValid) {
+            return;
+        }
+        
+        // Deshabilitar botón
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registrando...';
+        
+        try {
+            const response = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fullName: nombre,
+                    email,
+                    password,
+                    dateOfBirth
+                })
+            });
             
-            // Redirect after 2 seconds
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+            const data = await response.json();
+            
+            if (response.ok) {
+                successMessage.textContent = '✓ Usuario registrado correctamente. Redirigiendo a login...';
+                successMessage.classList.add('show');
+                registroForm.reset();
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                emailError.textContent = data.message || 'Error en el registro';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            emailError.textContent = 'Error de conexión. Intenta de nuevo.';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Registrarse';
         }
     });
 }
 
-// Password Recovery Form
+// ============================================
+// RECUPERAR CONTRASEÑA FORM
+// ============================================
 const recuperarForm = document.getElementById('recuperarForm');
 if (recuperarForm) {
-    recuperarForm.addEventListener('submit', function(e) {
+    recuperarForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const emailError = document.getElementById('emailError');
         const successMessage = document.getElementById('successMessage');
         let isValid = true;
         
-        // Clear previous messages
+        // Limpiar mensajes previos
         emailError.textContent = '';
         successMessage.classList.remove('show');
         
-        // Validate email
+        // VALIDAR EMAIL (OBLIGATORIO)
         if (!email) {
-            emailError.textContent = 'El correo es requerido';
+            emailError.textContent = 'El correo es obligatorio *';
             isValid = false;
         } else if (!isValidEmail(email)) {
             emailError.textContent = 'Correo inválido';
             isValid = false;
         }
         
-        if (isValid) {
-            // Show success message
-            successMessage.textContent = '✓ Se ha enviado un enlace de recuperación al correo ingresado.';
-            successMessage.classList.add('show');
+        if (!isValid) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_URL}/auth/password-reset`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
             
-            // Clear form
-            recuperarForm.reset();
+            if (response.ok) {
+                successMessage.textContent = `✓ Se ha enviado un enlace de recuperación a: ${email}`;
+                successMessage.classList.add('show');
+                recuperarForm.reset();
+            } else {
+                const data = await response.json();
+                emailError.textContent = data.message || 'Error en la recuperación';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            emailError.textContent = 'Error de conexión. Intenta de nuevo.';
         }
     });
 }
 
-// Email validation helper
+// ============================================
+// HELPER: Validar email
+// ============================================
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
+
+// ============================================
+// PROTECCIÓN DE RUTAS - Verificar sesión
+// ============================================
+function checkSession() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    
+    // Si no hay token y estamos en un dashboard, redirigir a login
+    if (!token || !user) {
+        const currentPage = window.location.pathname;
+        if (currentPage.includes('dashboard')) {
+            window.location.href = 'login.html';
+        }
+    }
+    
+    return { token, user };
+}
+
+// Ejecutar verificación al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    checkSession();
+});
+
+// ============================================
+// LOGOUT
+// ============================================
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '../pages/login.html';
+}
+
+window.logout = logout;

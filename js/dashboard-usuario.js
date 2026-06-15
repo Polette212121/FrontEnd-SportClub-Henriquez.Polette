@@ -1,141 +1,278 @@
-/* js/dashboard-usuario.js */
+/* ============================================
+   DASHBOARD USUARIO - LÓGICA CON API
+   ============================================ */
 
-// Datos de RESERVAS (mínimo 5)
-const RESERVAS_USUARIO = [
-    { clase: 'Crossfit', dia: 'Lunes', hora: '19:00', coach: 'Carlos', id: 1 },
-    { clase: 'Yoga', dia: 'Martes', hora: '18:00', coach: 'María', id: 2 },
-    { clase: 'Natación', dia: 'Miércoles', hora: '20:00', coach: 'Jorge', id: 3 },
-    { clase: 'Funcional', dia: 'Jueves', hora: '19:00', coach: 'Carlos', id: 4 },
-    { clase: 'Boxing', dia: 'Viernes', hora: '17:00', coach: 'Luis', id: 5 }
-];
+const API_URL = 'http://localhost:3000/api';
 
-// Datos de CLASES DISPONIBLES (mínimo 3)
-const CLASES_DISPONIBLES = [
-    { 
-        nombre: 'Crossfit', 
-        descripcion: 'Entrenamiento funcional intenso con movimientos variados y dinámicos', 
-        icono: '💪',
-        accion: 'Reservar'
-    },
-    { 
-        nombre: 'Yoga', 
-        descripcion: 'Flexibilidad, equilibrio y meditación para el bienestar integral', 
-        icono: '🧘',
-        accion: 'Inscribirse'
-    },
-    { 
-        nombre: 'Natación', 
-        descripcion: 'Cardio y resistencia en agua, ideal para articulaciones', 
-        icono: '🏊',
-        accion: 'Ver más'
-    },
-    { 
-        nombre: 'Pilates', 
-        descripcion: 'Fortalecimiento del core y mejora de postura corporal', 
-        icono: '🤸',
-        accion: 'Reservar'
-    },
-    { 
-        nombre: 'Boxing', 
-        descripcion: 'Boxeo para liberar estrés y mejorar coordinación', 
-        icono: '🥊',
-        accion: 'Ver más'
-    }
-];
-
-// Verificar sesión al cargar
-window.addEventListener('load', function() {
-    const usuario = verificarSesion();
+document.addEventListener('DOMContentLoaded', async function() {
+    // Proteger ruta
+    await protectRoute('user');
     
-    if (usuario && usuario.rol === 'usuario') {
-        cargarDashboardUsuario(usuario);
-    } else if (!usuario) {
-        window.location.href = '../pages/login.html';
-    } else {
-        alert('No tienes acceso a esta página');
-        window.location.href = '../index.html';
-    }
+    // Cargar datos
+    loadSessionInfo();
+    loadUserProfile();
+    setupMenuNavigation();
+    setupProfileForm();
+    setupPasswordForm();
 });
 
-// Cerrar sesión
-document.getElementById('cerrarSesion').addEventListener('click', function(e) {
-    e.preventDefault();
-    if (confirm('¿Estás seguro que quieres cerrar sesión?')) {
-        cerrarSesion();
+// ============================================
+// PROTEGER RUTA
+// ============================================
+async function protectRoute(requiredRole) {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    
+    if (!token || !user) {
+        window.location.href = 'login.html';
+        return false;
     }
-});
-
-// Cargar todos los datos del dashboard
-function cargarDashboardUsuario(usuario) {
-    // 1. BIENVENIDA
-    const primerNombre = usuario.nombre.split(' ')[0];
-    document.getElementById('nombreUsuario').textContent = primerNombre;
-    document.getElementById('mensajeMoti').textContent = `Continúa entrenando para alcanzar tus metas, ${primerNombre}.`;
     
-    // 2. PERFIL RÁPIDO
-    document.getElementById('perfilNombre').textContent = usuario.nombre;
-    document.getElementById('perfilEmail').textContent = usuario.email;
-    document.getElementById('perfilDeporte').textContent = usuario.deporte || 'No especificado';
-    document.getElementById('perfilFecha').textContent = usuario.fechaRegistro;
+    if (user.role !== requiredRole) {
+        alert('Acceso denegado. Solo usuarios.');
+        window.location.href = 'login.html';
+        return false;
+    }
     
-    // 3. LLENAR RESERVAS
-    llenarReservas();
-    
-    // 4. LLENAR CLASES DISPONIBLES
-    llenarClases();
+    return true;
 }
 
-// Función para llenar TABLA DE RESERVAS
-function llenarReservas() {
-    const tbody = document.getElementById('reservasTabla');
-    tbody.innerHTML = '';
+// ============================================
+// CARGAR INFORMACIÓN DE SESIÓN
+// ============================================
+function loadSessionInfo() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userDisplay = document.getElementById('userDisplay');
     
-    if (RESERVAS_USUARIO.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: #999;">No tienes reservas</td></tr>';
+    if (userDisplay && user) {
+        userDisplay.textContent = `👤 ${user.fullName} (${user.email})`;
+    }
+}
+
+// ============================================
+// CARGAR PERFIL DE USUARIO
+// ============================================
+async function loadUserProfile() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) throw new Error('Error al cargar perfil');
+        
+        const data = await response.json();
+        const user = data.data || data;
+        
+        // Llenar el formulario
+        document.getElementById('fullName').value = user.fullName || '';
+        document.getElementById('userEmail').value = user.email || '';
+        document.getElementById('dateOfBirth').value = user.dateOfBirth ? user.dateOfBirth.split('T')[0] : '';
+        document.getElementById('userRole').textContent = user.role.toUpperCase();
+        document.getElementById('registrationDate').textContent = formatDate(user.createdAt);
+        
+        // Actualizar información visual
+        updateUserInfo(user);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// ============================================
+// ACTUALIZAR INFORMACIÓN VISUAL
+// ============================================
+function updateUserInfo(user) {
+    const roleElement = document.getElementById('userRole');
+    if (roleElement) {
+        roleElement.className = 'badge ' + getRoleBadge(user.role);
+    }
+}
+
+// ============================================
+// OBTENER CLASE BADGE
+// ============================================
+function getRoleBadge(role) {
+    const badges = {
+        'admin': 'bg-danger',
+        'coach': 'bg-primary',
+        'user': 'bg-success'
+    };
+    return badges[role] || 'bg-success';
+}
+
+// ============================================
+// FORMATEAR FECHA
+// ============================================
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// ============================================
+// CONFIGURAR NAVEGACIÓN
+// ============================================
+function setupMenuNavigation() {
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const sections = document.querySelectorAll('.dashboard-section');
+    
+    menuLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const sectionId = this.getAttribute('href').substring(1);
+            
+            menuLinks.forEach(l => l.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            
+            this.classList.add('active');
+            const section = document.getElementById(sectionId);
+            if (section) section.classList.add('active');
+        });
+    });
+}
+
+// ============================================
+// CONFIGURAR FORMULARIO DE PERFIL
+// ============================================
+function setupProfileForm() {
+    const editBtn = document.getElementById('editProfileBtn');
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const cancelBtn = document.getElementById('cancelProfileBtn');
+    const profileInputs = document.querySelectorAll('#profileForm input:not([disabled])');
+    
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            profileInputs.forEach(input => input.disabled = false);
+            document.getElementById('editProfileBtn').style.display = 'none';
+            document.getElementById('profileFormActions').style.display = 'block';
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            profileInputs.forEach(input => input.disabled = true);
+            document.getElementById('editProfileBtn').style.display = 'block';
+            document.getElementById('profileFormActions').style.display = 'none';
+            loadUserProfile();
+        });
+    }
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveProfile);
+    }
+}
+
+// ============================================
+// GUARDAR PERFIL
+// ============================================
+async function saveProfile() {
+    const token = localStorage.getItem('token');
+    const fullName = document.getElementById('fullName').value.trim();
+    const dateOfBirth = document.getElementById('dateOfBirth').value;
+    
+    if (!fullName) {
+        alert('El nombre es obligatorio');
         return;
     }
     
-    RESERVAS_USUARIO.forEach((reserva, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><strong>${reserva.clase}</strong></td>
-            <td>${reserva.dia}</td>
-            <td>${reserva.hora}</td>
-            <td>${reserva.coach}</td>
-            <td><button class="btn btn-small btn-secondary" onclick="cancelarReserva(${index})">Cancelar</button></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-// Función para llenar CARDS DE CLASES DISPONIBLES
-function llenarClases() {
-    const grid = document.getElementById('clasesGrid');
-    grid.innerHTML = '';
-    
-    CLASES_DISPONIBLES.forEach(clase => {
-        const card = document.createElement('div');
-        card.className = 'clase-card';
-        card.innerHTML = `
-            <div class="clase-icon">${clase.icono}</div>
-            <h3>${clase.nombre}</h3>
-            <p>${clase.descripcion}</p>
-            <button class="btn btn-small btn-primary" onclick="reservarClase('${clase.nombre}')">${clase.accion}</button>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-// Función para cancelar reserva
-function cancelarReserva(index) {
-    if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
-        RESERVAS_USUARIO.splice(index, 1);
-        llenarReservas();
-        alert('✓ Reserva cancelada exitosamente');
+    try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                fullName,
+                dateOfBirth: dateOfBirth || null
+            })
+        });
+        
+        if (!response.ok) throw new Error('Error al guardar');
+        
+        const data = await response.json();
+        
+        // Actualizar localStorage
+        let user = JSON.parse(localStorage.getItem('user'));
+        user.fullName = fullName;
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        alert('✓ Perfil actualizado correctamente');
+        
+        // Restaurar estado
+        document.querySelectorAll('#profileForm input:not([disabled])').forEach(input => input.disabled = true);
+        document.getElementById('editProfileBtn').style.display = 'block';
+        document.getElementById('profileFormActions').style.display = 'none';
+        loadSessionInfo();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al guardar cambios');
     }
 }
 
-// Función para reservar clase
-function reservarClase(nombreClase) {
-    alert(`✓ Te has inscrito a la clase de ${nombreClase}`);
+// ============================================
+// CONFIGURAR FORMULARIO DE CONTRASEÑA
+// ============================================
+function setupPasswordForm() {
+    const passwordForm = document.getElementById('passwordForm');
+    
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', changePassword);
+    }
+}
+
+// ============================================
+// CAMBIAR CONTRASEÑA
+// ============================================
+async function changePassword(e) {
+    e.preventDefault();
+    
+    const token = localStorage.getItem('token');
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Validar
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        alert('Todos los campos son obligatorios');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        alert('La nueva contraseña debe tener mínimo 8 caracteres');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/me/password`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                currentPassword,
+                newPassword
+            })
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Error al cambiar contraseña');
+        }
+        
+        alert('✓ Contraseña actualizada correctamente');
+        document.getElementById('passwordForm').reset();
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'Error al cambiar contraseña');
+    }
 }
