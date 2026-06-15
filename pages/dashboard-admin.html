@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - SportClub</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body class="dashboard dashboard-admin">
+    
+    <!-- HEADER -->
+    <header class="dashboard-header admin-header">
+        <div class="header-container">
+            <div class="logo">
+                <h2>🏋️ SportClub</h2>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="miPerfil">👤 Mi Perfil</button>
+                <a href="../index.html" class="header-btn btn-logout">🚪 Cerrar Sesión</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="dashboard-container">
+        
+        <!-- NAVEGACIÓN LATERAL -->
+        <nav class="dashboard-nav admin-nav">
+            <ul>
+                <li><a href="#usuarios" class="nav-link active">👥 Usuarios</a></li>
+                <li><a href="#reportes" class="nav-link">📊 Reportes</a></li>
+                <li><a href="#configuracion" class="nav-link">⚙️ Configuración</a></li>
+                <li><a href="#clases" class="nav-link">📚 Clases</a></li>
+            </ul>
+        </nav>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="dashboard-content">
+            
+            <!-- SECCIÓN 1: TARJETAS ESTADÍSTICAS -->
+            <section class="dashboard-section">
+                <h2>📊 Estadísticas del Sistema</h2>
+                <div class="stats-grid admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsuarios">0</div>
+                        <div class="stat-label">Total Usuarios</div>
+                        <div class="stat-icon">👥</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCoaches">0</div>
+                        <div class="stat-label">Total Coaches</div>
+                        <div class="stat-icon">🏋️</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalClases">0</div>
+                        <div class="stat-label">Total Clases</div>
+                        <div class="stat-icon">📚</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: TABLA DE USUARIOS (mínimo 5) -->
+            <section id="usuarios" class="dashboard-section">
+                <h2>👥 Gestión de Usuarios</h2>
+                <p class="section-subtitle">Lista de todos los usuarios del sistema</p>
+                <div class="table-container">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>RUT</th>
+                                <th>Nombre Completo</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Fecha de Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosTabla">
+                            <!-- Se llena con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: PANEL DE REPORTES -->
+            <section id="reportes" class="dashboard-section">
+                <h2>📊 Reportes</h2>
+                <p class="section-subtitle">Información visual del sistema</p>
+                <div class="reportes-grid">
+                    <div class="reporte-card">
+                        <h3>🔥 Clases Más Solicitadas</h3>
+                        <ul id="clasesPopulares">
+                            <!-- Se llena con JavaScript -->
+                        </ul>
+                    </div>
+                    <div class="reporte-card">
+                        <h3>✅ Usuarios Activos</h3>
+                        <div class="reporte-stat">
+                            <div class="reporte-number" id="usuariosActivos">0</div>
+                            <div class="reporte-label">usuarios conectados hoy</div>
+                        </div>
+                    </div>
+                    <div class="reporte-card">
+                        <h3>📅 Reservas del Día</h3>
+                        <div class="reporte-stat">
+                            <div class="reporte-number" id="reservasHoy">0</div>
+                            <div class="reporte-label">reservas registradas</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: CONFIGURACIÓN RÁPIDA -->
+            <section id="configuracion" class="dashboard-section">
+                <h2>⚙️ Configuración Rápida</h2>
+                <p class="section-subtitle">Acciones administrativas</p>
+                <div class="config-buttons">
+                    <button class="btn btn-primary" id="crearUsuario">➕ Crear Usuario</button>
+                    <button class="btn btn-secondary" id="editarSistema">✏️ Editar Sistema</button>
+                    <button class="btn btn-secondary" id="configuracion">⚙️ Configuración</button>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: GESTIÓN DE CLASES -->
+            <section id="clases" class="dashboard-section">
+                <h2>📚 Gestión de Clases</h2>
+                <p class="section-subtitle">Clases disponibles en el sistema</p>
+                <div class="clases-admin-grid" id="clasesAdminGrid">
+                    <!-- Se llena con JavaScript -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard-admin.js"></script>
+
+</body>
+</html>
