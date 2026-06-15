@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportClub - Mi Perfil</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .profile-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .info-group {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-group:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #333;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="../Logo-sport.png" alt="Logo SportClub" style="height: 50px;">
+                </div>
+                <div class="user-menu">
+                    <span class="username" id="userDisplay"></span>
+                    <span class="user-role" id="roleDisplay"></span>
+                    <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="perfil.html" class="active">Mi Perfil</a></li>
+            <li id="adminMenu" style="display: none;"><a href="admin-users.html">Gestión de Usuarios</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="card">
+            <h1 class="card-title">Mi Perfil</h1>
+            <p class="card-description">Gestiona tu información personal y seguridad</p>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <div class="profile-container">
+            <!-- Datos Personales -->
+            <div class="profile-section">
+                <h2>Datos Personales</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="fullName">Nombre Completo</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                        <div class="form-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" disabled>
+                        <div class="form-error"></div>
+                        <small style="color: #999; font-size: 12px; margin-top: 5px;">No puedes cambiar tu email</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birthDate">Fecha de Nacimiento</label>
+                        <input type="date" id="birthDate" name="birthDate">
+                        <div class="form-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Rol</label>
+                        <input type="text" id="role" name="role" disabled>
+                        <small style="color: #999; font-size: 12px; margin-top: 5px;">No puedes cambiar tu rol</small>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Seguridad -->
+            <div class="profile-section">
+                <h2>Seguridad</h2>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Contraseña Actual</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                        <div class="form-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">Nueva Contraseña</label>
+                        <input type="password" id="newPassword" name="newPassword" required>
+                        <div class="form-error"></div>
+                        <small style="color: #999; font-size: 12px; margin-top: 5px;">Mínimo 8 caracteres</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Confirmar Nueva Contraseña</label>
+                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+                        <div class="form-error"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Cambiar Contraseña</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        checkAuth();
+
+        const user = getCurrentUser();
+        if (!user) window.location.href = 'login.html';
+
+        // Display user info
+        document.getElementById('userDisplay').textContent = user.full_name || user.email;
+        document.getElementById('roleDisplay').textContent = user.role.toUpperCase();
+
+        // Show admin menu if admin
+        if (user.role === 'admin') {
+            document.getElementById('adminMenu').style.display = 'block';
+        }
+
+        const profileForm = document.getElementById('profileForm');
+        const passwordForm = document.getElementById('passwordForm');
+        const messageContainer = document.getElementById('messageContainer');
+
+        // Load profile data
+        async function loadProfile() {
+            const result = await authAPI.getProfile();
+            if (result.ok) {
+                const userData = result.data.user;
+                document.getElementById('fullName').value = userData.full_name || '';
+                document.getElementById('email').value = userData.email || '';
+                document.getElementById('birthDate').value = userData.birthDate || '';
+                document.getElementById('role').value = userData.role || '';
+            }
+        }
+
+        loadProfile();
+
+        // Profile form submit
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const birthDate = document.getElementById('birthDate').value;
+
+            let isValid = true;
+            const fullNameField = document.getElementById('fullName');
+            clearFieldError(fullNameField);
+
+            if (!fullName) {
+                showFieldError(fullNameField, 'El nombre es obligatorio');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const button = profileForm.querySelector('button[type="submit"]');
+            showLoading(button);
+
+            try {
+                const result = await authAPI.updateProfile({
+                    full_name: fullName,
+                    birthDate: birthDate || null
+                });
+
+                if (result.ok) {
+                    showMessage(messageContainer, 'Perfil actualizado correctamente', 'success');
+                    setTimeout(() => loadProfile(), 1000);
+                } else {
+                    showMessage(messageContainer, result.data.message || 'Error al actualizar perfil', 'error');
+                }
+            } catch (error) {
+                showMessage(messageContainer, 'Error de conexión', 'error');
+            } finally {
+                hideLoading(button, 'Guardar Cambios');
+            }
+        });
+
+        // Password form submit
+        passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            let isValid = true;
+            const fields = {
+                current: document.getElementById('currentPassword'),
+                new: document.getElementById('newPassword'),
+                confirm: document.getElementById('confirmNewPassword')
+            };
+
+            Object.values(fields).forEach(field => clearFieldError(field));
+
+            if (!currentPassword) {
+                showFieldError(fields.current, 'La contraseña actual es obligatoria');
+                isValid = false;
+            }
+
+            if (!newPassword) {
+                showFieldError(fields.new, 'La nueva contraseña es obligatoria');
+                isValid = false;
+            } else if (newPassword.length < 8) {
+                showFieldError(fields.new, 'Contraseña mínima 8 caracteres');
+                isValid = false;
+            }
+
+            if (!confirmNewPassword) {
+                showFieldError(fields.confirm, 'Debe confirmar la nueva contraseña');
+                isValid = false;
+            } else if (newPassword !== confirmNewPassword) {
+                showFieldError(fields.confirm, 'Las contraseñas no coinciden');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const button = passwordForm.querySelector('button[type="submit"]');
+            showLoading(button);
+
+            try {
+                const result = await authAPI.changePassword(currentPassword, newPassword);
+
+                if (result.ok) {
+                    showMessage(messageContainer, 'Contraseña cambiada correctamente', 'success');
+                    passwordForm.reset();
+                    setTimeout(() => hideLoading(button, 'Cambiar Contraseña'), 1000);
+                } else {
+                    showMessage(messageContainer, result.data.message || 'Error al cambiar contraseña', 'error');
+                }
+            } catch (error) {
+                showMessage(messageContainer, 'Error de conexión', 'error');
+            } finally {
+                hideLoading(button, 'Cambiar Contraseña');
+            }
+        });
+
+        function resetForm() {
+            loadProfile();
+            const fields = profileForm.querySelectorAll('input');
+            fields.forEach(field => clearFieldError(field));
+        }
+
+        function resetPasswordForm() {
+            passwordForm.reset();
+            const fields = passwordForm.querySelectorAll('input');
+            fields.forEach(field => clearFieldError(field));
+        }
+
+        function logout() {
+            authAPI.logout();
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

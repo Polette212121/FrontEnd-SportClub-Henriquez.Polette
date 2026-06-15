@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportClub - Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="../Logo-sport.png" alt="Logo SportClub" style="height: 50px;">
+                </div>
+                <div class="user-menu">
+                    <span class="username" id="userDisplay"></span>
+                    <span class="user-role" id="roleDisplay"></span>
+                    <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="adminMenu" style="display: none;"><a href="admin-users.html">Gestión de Usuarios</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="card">
+            <h1 class="card-title">Bienvenido a SportClub</h1>
+            <p class="card-description">Accede a tu perfil, visualiza tus entrenamientos y disfruta de todos nuestros servicios.</p>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Información de tu Cuenta</h2>
+            <div id="userInfo" class="table-container">
+                <p>Cargando información...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        checkAuth();
+
+        const user = getCurrentUser();
+        if (!user) window.location.href = 'login.html';
+
+        // Display user info
+        document.getElementById('userDisplay').textContent = user.full_name || user.email;
+        document.getElementById('roleDisplay').textContent = user.role.toUpperCase();
+        document.getElementById('roleDisplay').className = `user-role badge ${getRoleBadge(user.role).includes('danger') ? 'bg-danger' : getRoleBadge(user.role).includes('primary') ? 'bg-primary' : 'bg-success'}`;
+
+        // Show admin menu if admin
+        if (user.role === 'admin') {
+            document.getElementById('adminMenu').style.display = 'block';
+        }
+
+        // Load and display user info
+        async function loadUserInfo() {
+            const result = await authAPI.getProfile();
+            if (result.ok) {
+                const userData = result.data.user;
+                const infoHtml = `
+                    <table>
+                        <tr>
+                            <td><strong>Nombre:</strong></td>
+                            <td>${userData.full_name}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>${userData.email}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rol:</strong></td>
+                            <td>${getRoleBadge(userData.role)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha de Registro:</strong></td>
+                            <td>${formatDate(userData.created_at)}</td>
+                        </tr>
+                    </table>
+                `;
+                document.getElementById('userInfo').innerHTML = infoHtml;
+            }
+        }
+
+        loadUserInfo();
+
+        function logout() {
+            authAPI.logout();
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>
